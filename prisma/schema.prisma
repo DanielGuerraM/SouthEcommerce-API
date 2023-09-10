@@ -1,0 +1,187 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+  relationMode = "prisma"
+}
+
+model SE_User {
+  id String @id @default(uuid())
+  name String
+  email String @unique
+  hashedPassword String
+  createdAt DateTime @default(now())
+  lastSession DateTime?
+  idRol String
+  client_key String? @unique
+  client_token String? @unique
+  client_secret String? @db.LongText
+
+  userRole SE_Role_User?
+}
+
+model SE_Role_User {
+  id String @id
+  idRole String @unique
+  idUser String @unique
+
+  role SE_Role @relation(fields: [idRole], references: [id])
+  user SE_User @relation(fields: [idUser], references: [id])
+
+  @@index([idRole])
+  @@index([idUser])
+}
+
+model SE_Role {
+  id String @id @default(uuid())
+  name String
+  description String
+
+  permission_role SE_Permission_Role[]
+
+  RoleUser SE_Role_User?
+}
+
+model SE_Permission_Role {
+  id String @id @default(uuid())
+  idRole String
+  idPermission String
+
+  role SE_Role @relation(fields: [idRole], references: [id], onDelete: Cascade)
+  permission SE_Permission @relation(fields: [idPermission], references: [id])
+
+  @@index([idRole])
+  @@index([idPermission])
+}
+
+model SE_Permission {
+  id String @id @default(uuid())
+  name String
+  Description String
+  section String
+
+  permission_role SE_Permission_Role[]
+}
+
+// Productos
+
+model SE_Brand {
+  id Int @id 
+  title String @unique
+  status Boolean
+  createdAt DateTime @default(now())
+  inactivatedAt DateTime?
+
+  product SE_Product[]
+}
+
+model SE_Category {
+  id Int @id
+  name String @unique
+  description String
+  hasSubcategory Boolean
+
+  product SE_Product[]
+  subCategory SE_SubCategory[]
+}
+
+model SE_SubCategory {
+  id Int @id
+  name String @unique
+  description String
+  idCategory Int
+
+  category SE_Category @relation(fields: [idCategory], references: [id], onDelete: Cascade)
+  product SE_Product[]
+
+  @@index([idCategory])
+}
+
+model SE_Product {
+  id String @id @default(uuid())
+  title String
+  description String
+  status Boolean
+  reference String @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  publishedAt DateTime
+  inactivatedAt DateTime
+  idSubCategory Int
+  idCategory Int
+  idBrand Int
+  
+  SubCategory SE_SubCategory @relation(fields: [idSubCategory], references: [id], onDelete: Cascade)
+  Category SE_Category @relation(fields: [idCategory], references: [id], onDelete: Cascade)
+  Brand SE_Brand @relation(fields: [idBrand], references: [id], onDelete: Cascade)
+
+  variant SE_Variant[]
+  image SE_Imagen[]
+
+  @@index([idSubCategory])
+  @@index([idCategory])
+  @@index([idBrand])
+}
+
+model SE_Option {
+  id Int @id
+  name String
+
+  variant SE_Variant[]
+  valueOption SE_ValueOption[]
+}
+
+model SE_ValueOption {
+  id Int @id
+  value String
+  idOption Int
+
+  option SE_Option @relation(fields: [idOption], references: [id], onDelete: Cascade)
+
+  @@index([idOption])
+}
+
+model SE_Variant {
+  id String @id @default(uuid())
+  idProduct String
+  title String @unique
+  sku String
+  barcode String
+  Status Boolean
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  publishedAt DateTime
+  inactivatedAt DateTime
+  inventoryTracking Boolean
+  InheritProductPrice Boolean
+  idOption Int?
+
+  producto SE_Product @relation(fields: [idProduct], references: [id], onDelete: Cascade)
+  option SE_Option? @relation(fields: [idOption], references: [id], onDelete: Cascade)
+
+  image SE_Imagen[]
+
+  @@index([idProduct])
+  @@index([idOption])
+}
+
+model SE_Imagen {
+  id String @id
+  urlImage String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  idProduct String
+  idVariant String
+
+  product SE_Product @relation(fields: [idProduct], references: [id], onDelete: Cascade)
+  variant SE_Variant @relation(fields: [idVariant], references: [id], onDelete: Cascade)
+
+  @@index([idProduct])
+  @@index([idVariant])
+}
