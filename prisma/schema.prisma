@@ -110,9 +110,9 @@ model SE_Product {
   status Boolean
   reference String @unique
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  publishedAt DateTime
-  inactivatedAt DateTime
+  updatedAt DateTime? @updatedAt
+  publishedAt DateTime?
+  inactivatedAt DateTime?
   idSubCategory Int
   idCategory Int
   idBrand Int
@@ -153,11 +153,11 @@ model SE_Variant {
   title String @unique
   sku String
   barcode String
-  Status Boolean
+  status Boolean
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  publishedAt DateTime
-  inactivatedAt DateTime
+  updatedAt DateTime? @updatedAt
+  publishedAt DateTime?
+  inactivatedAt DateTime?
   inventoryTracking Boolean
   InheritProductPrice Boolean
   idOption Int?
